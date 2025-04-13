@@ -11,6 +11,7 @@ ideal for learning how stack-based execution works under the hood.
 
 ![screenshot](screenshots/stackalc.png)
 
+![screenshot2](screenshots/stackalc2.png)
 ---
 
 ## How to use
