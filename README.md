@@ -5,9 +5,11 @@ translate into a minimal, CIL-inspired instruction set. Whether you're experimen
 postfix (Reverse Polish Notation), or writing stack instructions directly, `stackalc` gives you a clear view of how 
 expressions are broken down and executed step-by-step.
 
-It features a clean, responsive terminal UI (TUI) built with [`ratatui`](https://github.com/ratatui-org/ratatui), 
+It features a clean, responsive terminal UI (TUI) built with [`ratatui`](https://github.com/ratatui/ratatui), 
 showing both the list of generated instructions and the state of the stack at every stage of execution. This makes it 
 ideal for learning how stack-based execution works under the hood.
+
+![screenshot](screenshots/stackalc.png)
 
 ---
 
