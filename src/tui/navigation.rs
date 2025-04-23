@@ -14,11 +14,12 @@ impl App {
                     KeyCode::Char('r') => { self.calc_mode = CalcMode::RAW }
                     KeyCode::Char('c') => { self.clear() }
                     KeyCode::Up => {
-                        self.select_previous()
+                        self.select_previous();
+                        self.calculate()
                     }
                     KeyCode::Down => {
                         self.select_next();
-                        self.iterate_once_forward()
+                        self.calculate()
                     }
                     _ => {}
                 }
@@ -26,7 +27,7 @@ impl App {
             InputMode::Insert => {
                 match key.code {
                     KeyCode::Esc => { self.input_mode = InputMode::Normal }
-                    KeyCode::Enter => { self.calculate() }
+                    KeyCode::Enter => { self.load_input() }
                     KeyCode::Char(to_insert) => { self.enter_char(to_insert) }
                     KeyCode::Backspace => { self.delete_char() }
                     KeyCode::Left => { self.move_cursor_left() }
@@ -37,9 +38,12 @@ impl App {
         }
     }
 
-    pub fn iterate_once_forward(&mut self) {
+    pub fn calculate(&mut self) {
+        self.stackalc.stack.clear();
         let selected_idx = self.instruction_list_state.selected().unwrap();
-        if let Some(instruction) = self.stackalc.expr.get(selected_idx) {
+        let slice = &self.stackalc.clone().expr[0..=selected_idx];
+        
+        for instruction in slice {
             match instruction {
                 Instruction::LDC(n) => {
                     self.stackalc.ldc(*n)
