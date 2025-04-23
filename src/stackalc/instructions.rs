@@ -12,7 +12,10 @@ pub enum Instruction {
     CGT,
     CLT,
     DUP,
-    POP
+    POP,
+    BR(usize),
+    NOP,
+    RNG,
 }
 
 impl Display for Instruction {
@@ -50,6 +53,15 @@ impl Display for Instruction {
             }
             Instruction::POP => {
                 String::from("pop")
+            }
+            Instruction::BR(value) => {
+                format!("br:{}", value.to_string())
+            }
+            Instruction::NOP => {
+                String::from("nop")
+            }
+            Instruction::RNG => {
+                String::from("rng")
             }
         };
         write!(f, "{}", instruction)

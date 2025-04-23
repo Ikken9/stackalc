@@ -46,12 +46,18 @@ impl Stackalc {
 
     pub fn parse_raw(&mut self, input: &String) {
         let mut instructions = Vec::new();
-        let re = Regex::new(r"^ldc:(\d+(\.\d+)?)$").unwrap();
+        let ldc_re = Regex::new(r"^ldc:(\d+(\.\d+)?)$").unwrap();
+        let br_re = Regex::new(r"^br:(\d+(\.\d+)?)$").unwrap();
         for token in input.split_whitespace() {
-            if let Some(captures) = re.captures(token) {
+            if let Some(captures) = ldc_re.captures(token) {
                 let n = &captures[1];
                 instructions.push(Instruction::LDC(n.parse::<f64>().unwrap()));
-            } else {
+            }
+            else if let Some(captures) = br_re.captures(token) {
+                let n = &captures[1];
+                instructions.push(Instruction::BR(n.parse::<usize>().unwrap()));
+            }
+            else {
                 match token {
                     "add" => { instructions.push(Instruction::ADD) }
                     "sub" => { instructions.push(Instruction::SUB) }

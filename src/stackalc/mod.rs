@@ -1,3 +1,5 @@
+use std::ops::Range;
+use rand::Rng;
 use crate::stackalc::instructions::Instruction;
 
 mod parser;
@@ -7,6 +9,7 @@ pub mod instructions;
 pub struct Stackalc {
     pub stack: Vec<f64>,
     pub expr: Vec<Instruction>,
+    pub pc: usize,
 }
 
 impl Stackalc {
@@ -14,6 +17,7 @@ impl Stackalc {
         Stackalc {
             stack: Vec::new(),
             expr: Vec::new(),
+            pc: 0,
         }
     }
     
@@ -97,5 +101,23 @@ impl Stackalc {
 
     pub fn pop(&mut self) {
         self.stack.pop();
+    }
+
+    pub fn br(&mut self, n: usize) {
+        self.pc = n;
+    }
+
+    pub fn nop(&mut self) {
+        // do nothing
+    }
+
+    pub fn rng(&mut self) {
+        let mut rng = rand::thread_rng();
+        let n = rng.random_range(0.0..1.0);
+        self.stack.push(n);
+    }
+
+    pub fn ret(&mut self) {
+
     }
 }

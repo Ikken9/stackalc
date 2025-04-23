@@ -15,11 +15,11 @@ impl App {
                     KeyCode::Char('c') => { self.clear() }
                     KeyCode::Up => {
                         self.select_previous();
-                        self.calculate()
+                        self.calculate();
                     }
                     KeyCode::Down => {
                         self.select_next();
-                        self.calculate()
+                        self.calculate();
                     }
                     _ => {}
                 }
@@ -39,44 +39,67 @@ impl App {
     }
 
     pub fn calculate(&mut self) {
-        self.stackalc.stack.clear();
         let selected_idx = self.instruction_list_state.selected().unwrap();
         let slice = &self.stackalc.clone().expr[0..=selected_idx];
         
         for instruction in slice {
             match instruction {
                 Instruction::LDC(n) => {
-                    self.stackalc.ldc(*n)
+                    self.stackalc.stack.clear();
+                    self.stackalc.ldc(*n);
                 }
                 Instruction::NEG => {
-                    self.stackalc.neg()
+                    self.stackalc.stack.clear();
+                    self.stackalc.neg();
                 }
                 Instruction::ADD => {
-                    self.stackalc.add()
+                    self.stackalc.stack.clear();
+                    self.stackalc.add();
                 }
                 Instruction::MUL => {
+                    self.stackalc.stack.clear();
                     self.stackalc.mul()
                 }
                 Instruction::SUB => {
+                    self.stackalc.stack.clear();
                     self.stackalc.sub()
                 }
                 Instruction::DIV => {
+                    self.stackalc.stack.clear();
                     self.stackalc.div()
                 }
                 Instruction::CEQ => {
+                    self.stackalc.stack.clear();
                     self.stackalc.ceq()
                 }
                 Instruction::CGT => {
+                    self.stackalc.stack.clear();
                     self.stackalc.cgt()
                 }
                 Instruction::CLT => {
+                    self.stackalc.stack.clear();
                     self.stackalc.clt()
                 }
                 Instruction::DUP => {
+                    self.stackalc.stack.clear();
                     self.stackalc.dup()
                 }
                 Instruction::POP => {
+                    self.stackalc.stack.clear();
                     self.stackalc.pop()
+                }
+
+                // not working for now
+                Instruction::BR(n) => {
+                    self.stackalc.br(*n)
+                }
+                Instruction::NOP => {
+                    self.stackalc.stack.clear();
+                    self.stackalc.nop()
+                }
+                Instruction::RNG => {
+                    self.stackalc.stack.clear();
+                    self.stackalc.rng()
                 }
             }
         }
