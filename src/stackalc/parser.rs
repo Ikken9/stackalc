@@ -24,7 +24,7 @@ impl Stackalc {
         }
     }
 
-    pub fn parse_postfix(&mut self, input: String) {
+    pub fn parse_postfix(&mut self, input: &String) {
         let mut instructions = Vec::new();
 
         for token in input.split_whitespace() {
