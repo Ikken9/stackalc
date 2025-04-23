@@ -4,7 +4,6 @@ use crate::tui::app::App;
 mod stackalc;
 mod tui;
 
-
 fn main() -> io::Result<()> {
     let terminal = ratatui::init();
     let app = App::new();
@@ -14,4 +13,3 @@ fn main() -> io::Result<()> {
     
     result
 }
-
