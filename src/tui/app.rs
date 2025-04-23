@@ -34,13 +34,13 @@ impl App {
         }
     }
 
-    pub fn calculate(&mut self) {
+    pub fn load_input(&mut self) {
         match self.calc_mode {
             CalcMode::INFIX => {
                 self.stackalc.parse_infix(&self.calculator_query)
             }
             CalcMode::POSTFIX => {
-                self.stackalc.parse_infix(&self.calculator_query)
+                self.stackalc.parse_postfix(&self.calculator_query)
             }
             CalcMode::RAW => {
                 self.stackalc.parse_raw(&self.calculator_query)
