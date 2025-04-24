@@ -69,6 +69,7 @@ impl Stackalc {
                     "clt" => { instructions.push(Instruction::CLT) }
                     "dup" => { instructions.push(Instruction::DUP) }
                     "pop" => { instructions.push(Instruction::POP) }
+                    "rng" => { instructions.push(Instruction::RNG) }
                     _ => {}
                 }
             }
