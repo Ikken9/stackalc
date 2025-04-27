@@ -1,13 +1,13 @@
 use std::io;
-use crate::tui::app::App;
+use crate::stackalc::Stackalc;
 
 mod stackalc;
 mod tui;
 
 fn main() -> io::Result<()> {
     let terminal = ratatui::init();
-    let app = App::new();
-    let result = app.run(terminal);
+    let stackalc = Stackalc::default();
+    let result = stackalc.run(terminal);
     
     ratatui::restore();
     

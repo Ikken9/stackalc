@@ -1,120 +1,36 @@
+use crate::stackalc::{CalcMode, InputMode, Stackalc};
 use ratatui::crossterm::event::{KeyCode, KeyEvent};
-use crate::stackalc::instructions::Instruction;
-use crate::tui::app::{App, CalcMode, InputMode};
 
-impl App {
+impl Stackalc {
     pub fn handle_key_event(&mut self, key: KeyEvent) {
         match self.input_mode {
-            InputMode::Normal => {
-                match key.code {
-                    KeyCode::Tab => { self.input_mode = InputMode::Insert }
-                    KeyCode::Char('q') => { self.exit = true }
-                    KeyCode::Char('i') => { self.calc_mode = CalcMode::INFIX }
-                    KeyCode::Char('p') => { self.calc_mode = CalcMode::POSTFIX }
-                    KeyCode::Char('r') => { self.calc_mode = CalcMode::RAW }
-                    KeyCode::Char('c') => { self.clear() }
-                    KeyCode::Up => {
-                        self.select_previous();
-                        self.calculate();
-                    }
-                    KeyCode::Down => {
-                        self.select_next();
-                        self.calculate();
-                    }
-                    _ => {}
+            InputMode::Normal => match key.code {
+                KeyCode::Tab => self.input_mode = InputMode::Insert,
+                KeyCode::Char('q') => self.exit = true,
+                KeyCode::Char('i') => self.calc_mode = CalcMode::INFIX,
+                KeyCode::Char('p') => self.calc_mode = CalcMode::POSTFIX,
+                KeyCode::Char('r') => self.calc_mode = CalcMode::RAW,
+                KeyCode::Char('c') => self.clear(),
+                KeyCode::Down => {
+                    self.next();
                 }
-            }
-            InputMode::Insert => {
-                match key.code {
-                    KeyCode::Esc => { self.input_mode = InputMode::Normal }
-                    KeyCode::Enter => { self.load_input() }
-                    KeyCode::Char(to_insert) => { self.enter_char(to_insert) }
-                    KeyCode::Backspace => { self.delete_char() }
-                    KeyCode::Left => { self.move_cursor_left() }
-                    KeyCode::Right => { self.move_cursor_right() }
-                    _ => {}
-                }
-            }
+                _ => {}
+            },
+            InputMode::Insert => match key.code {
+                KeyCode::Esc => self.input_mode = InputMode::Normal,
+                KeyCode::Enter => self.load_input(),
+                KeyCode::Char(to_insert) => self.enter_char(to_insert),
+                KeyCode::Backspace => self.delete_char(),
+                KeyCode::Left => self.move_cursor_left(),
+                KeyCode::Right => self.move_cursor_right(),
+                _ => {}
+            },
         }
     }
 
-    pub fn calculate(&mut self) {
-        let selected_idx = self.instruction_list_state.selected().unwrap();
-        let slice = &self.stackalc.clone().expr[0..=selected_idx];
-        
-        for instruction in slice {
-            match instruction {
-                Instruction::LDC(n) => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.ldc(*n);
-                }
-                Instruction::NEG => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.neg();
-                }
-                Instruction::ADD => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.add();
-                }
-                Instruction::MUL => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.mul()
-                }
-                Instruction::SUB => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.sub()
-                }
-                Instruction::DIV => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.div()
-                }
-                Instruction::CEQ => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.ceq()
-                }
-                Instruction::CGT => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.cgt()
-                }
-                Instruction::CLT => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.clt()
-                }
-                Instruction::DUP => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.dup()
-                }
-                Instruction::POP => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.pop()
-                }
-
-                // not working for now
-                Instruction::BR(n) => {
-                    self.stackalc.br(*n)
-                }
-                Instruction::NOP => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.nop()
-                }
-                Instruction::RNG => {
-                    self.stackalc.stack.clear();
-                    self.stackalc.rng()
-                }
-            }
-        }
-    }
-    
-    fn clear(&mut self) {
-        self.stackalc.expr.clear();
-        self.stackalc.stack.clear();
-    }
-
-    fn select_next(&mut self) {
+    pub fn next(&mut self) {
         self.instruction_list_state.select_next();
-    }
-    fn select_previous(&mut self) {
-        self.instruction_list_state.select_previous();
+        self.execute_selected();
     }
 
     fn move_cursor_left(&mut self) {
@@ -147,7 +63,10 @@ impl App {
             let current_index = self.calculator_query_char_idx;
             let from_left_to_current_index = current_index - 1;
 
-            let before_char_to_delete = self.calculator_query.chars().take(from_left_to_current_index);
+            let before_char_to_delete = self
+                .calculator_query
+                .chars()
+                .take(from_left_to_current_index);
             let after_char_to_delete = self.calculator_query.chars().skip(current_index);
 
             self.calculator_query = before_char_to_delete.chain(after_char_to_delete).collect();

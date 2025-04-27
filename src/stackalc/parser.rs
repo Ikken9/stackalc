@@ -1,8 +1,18 @@
+use crate::stackalc::Stackalc;
+use crate::stackalc::instructions::Instruction;
+use lazy_static::lazy_static;
+use regex::Regex;
 use std::collections::VecDeque;
 use std::fmt;
-use regex::Regex;
-use crate::stackalc::instructions::Instruction;
-use crate::stackalc::Stackalc;
+
+lazy_static! {
+    static ref LDC_RE: Regex = Regex::new(r"^ldc:(\d+(?:\.\d+)?)$").unwrap();
+    static ref LDV_RE: Regex = Regex::new(r"^ldv:(\d+)$").unwrap();
+    static ref STV_RE: Regex = Regex::new(r"^stv:(\d+)$").unwrap();
+    static ref BR_RE: Regex = Regex::new(r"^br:(\d+)$").unwrap();
+    static ref BRTRUE_RE: Regex = Regex::new(r"^brtrue:(\d+)$").unwrap();
+    static ref BRFALSE_RE: Regex = Regex::new(r"^brfalse:(\d+)$").unwrap();
+}
 
 impl Stackalc {
     pub fn parse_infix(&mut self, input: &String) {
@@ -16,7 +26,7 @@ impl Stackalc {
                     OpOrNum::Op('*') => instructions.push(Instruction::MUL),
                     OpOrNum::Op('/') => instructions.push(Instruction::DIV),
                     OpOrNum::Num(n) => instructions.push(Instruction::LDC(n)),
-                    _ => {},
+                    _ => {}
                 }
             }
 
@@ -44,36 +54,41 @@ impl Stackalc {
         self.expr.extend(instructions);
     }
 
-    pub fn parse_raw(&mut self, input: &String) {
-        let mut instructions = Vec::new();
-        let ldc_re = Regex::new(r"^ldc:(\d+(\.\d+)?)$").unwrap();
-        let br_re = Regex::new(r"^br:(\d+(\.\d+)?)$").unwrap();
-        for token in input.split_whitespace() {
-            if let Some(captures) = ldc_re.captures(token) {
-                let n = &captures[1];
-                instructions.push(Instruction::LDC(n.parse::<f64>().unwrap()));
-            }
-            else if let Some(captures) = br_re.captures(token) {
-                let n = &captures[1];
-                instructions.push(Instruction::BR(n.parse::<usize>().unwrap()));
-            }
-            else {
-                match token {
-                    "add" => { instructions.push(Instruction::ADD) }
-                    "sub" => { instructions.push(Instruction::SUB) }
-                    "mul" => { instructions.push(Instruction::MUL) }
-                    "div" => { instructions.push(Instruction::DIV) }
-                    "neg" => { instructions.push(Instruction::NEG) }
-                    "ceq" => { instructions.push(Instruction::CEQ) }
-                    "cgt" => { instructions.push(Instruction::CGT) }
-                    "clt" => { instructions.push(Instruction::CLT) }
-                    "dup" => { instructions.push(Instruction::DUP) }
-                    "pop" => { instructions.push(Instruction::POP) }
-                    "rng" => { instructions.push(Instruction::RNG) }
-                    _ => {}
+    pub fn parse_raw(&mut self, input: &str) {
+        let instructions: Vec<Instruction> = input
+            .split_whitespace()
+            .filter_map(|token| {
+                if let Some(captures) = LDC_RE.captures(token) {
+                    captures[1].parse::<f64>().ok().map(Instruction::LDC)
+                } else if let Some(captures) = LDV_RE.captures(token) {
+                    captures[1].parse::<usize>().ok().map(Instruction::LDV)
+                } else if let Some(captures) = STV_RE.captures(token) {
+                    captures[1].parse::<usize>().ok().map(Instruction::STV)
+                } else if let Some(captures) = BR_RE.captures(token) {
+                    captures[1].parse::<usize>().ok().map(Instruction::BR)
+                } else if let Some(captures) = BRTRUE_RE.captures(token) {
+                    captures[1].parse::<usize>().ok().map(Instruction::BRTRUE)
+                } else if let Some(captures) = BRFALSE_RE.captures(token) {
+                    captures[1].parse::<usize>().ok().map(Instruction::BRFALSE)
+                } else {
+                    match token {
+                        "add" => Some(Instruction::ADD),
+                        "sub" => Some(Instruction::SUB),
+                        "mul" => Some(Instruction::MUL),
+                        "div" => Some(Instruction::DIV),
+                        "neg" => Some(Instruction::NEG),
+                        "ceq" => Some(Instruction::CEQ),
+                        "cgt" => Some(Instruction::CGT),
+                        "clt" => Some(Instruction::CLT),
+                        "dup" => Some(Instruction::DUP),
+                        "pop" => Some(Instruction::POP),
+                        "nop" => Some(Instruction::NOP),
+                        "rng" => Some(Instruction::RNG),
+                        _ => None,
+                    }
                 }
-            }
-        }
+            })
+            .collect();
 
         self.expr.extend(instructions);
     }
